@@ -2,19 +2,21 @@
 
 .section .rodata    #read only data section
 
-    format50:	.string	"‫‪first‬‬ ‫‪pstring‬‬ ‫‪length:‬‬ ‫‪%d,‬‬ ‫‪second‬‬ ‫‪pstring‬‬ ‫‪length:‬‬ ‫‪%d\n‬‬"
-    format52:	.string	"‫‪‫‪old‬‬ ‫‪char:‬‬ ‫‪%c,‬‬ ‫‪new‬‬ ‫‪char:‬‬ ‫‪%c,‬‬ ‫‪first‬‬ ‫‪string:‬‬ ‫‪%s,‬‬ ‫‪second‬‬ ‫‪string:‬‬ ‫‪%s\n‬‬‬‬"
-    format53:	.string	"‫‪‫‪length:‬‬ ‫‪%d,‬‬ ‫‪string:‬‬ ‫‪%s\n‬‬‬‬"
-    format54:	.string	"‫‪length:‬‬ ‫‪%d,‬‬ ‫‪string:‬‬ ‫‪%s\n‬‬‬‬"
-    format55:	.string	"‫‪‫‪compare‬‬ ‫‪result:‬‬ ‫‪%d\n‬‬‬‬‬‬"
-    format0:    	.string	"‫‪invalid‬‬ ‫‪option!\n‬‬‬‬‬‬‬‬"
-    format1:    	.string	"‫‪%c%c‬‬‬‬‬‬‬‬"
-    intFormat:    	.string	"‫‪%d‬‬‬‬‬‬‬‬"
-    int2Format:    	.string	"‫‪%d%d‬‬‬‬‬‬‬‬"
-    strFormat:    	.string	"‫‪%s‬‬‬‬‬‬‬‬"
+    format50:       .string	"‫‪first‬‬ ‫‪pstring‬‬ ‫‪length:‬‬ ‫‪%d,‬‬ ‫‪second‬‬ ‫‪pstring‬‬ ‫‪length:‬‬ ‫‪%d\n‬‬"
+    format52:       .string	"‫‪‫‪old‬‬ ‫‪char:‬‬ ‫‪%c,‬‬ ‫‪new‬‬ ‫‪char:‬‬ ‫‪%c,‬‬ ‫‪first‬‬ ‫‪string:‬‬ ‫‪%s,‬‬ ‫‪second‬‬ ‫‪string:‬‬ ‫‪%s\n‬‬‬‬"
+    format53:       .string	"‫‪‫‪length:‬‬ ‫‪%d,‬‬ ‫‪string:‬‬ ‫‪%s\n‬‬‬‬"
+    format54:       .string	"‫‪length:‬‬ ‫‪%d,‬‬ ‫‪string:‬‬ ‫‪%s\n‬‬‬‬"
+    format55:       .string	"‫‪‫‪compare‬‬ ‫‪result:‬‬ ‫‪%d\n‬‬‬‬‬‬"
+    format0:        .string	"‫‪invalid‬‬ ‫‪option!\n‬‬‬‬‬‬‬‬"
+    format1:        .string	"‫‪%c%c‬‬‬‬‬‬‬‬"
+    intFormat:      .string	"‫‪%d‬‬‬‬‬‬‬‬"
+    int2Format:     .string	"‫‪%d%d‬‬‬‬‬‬‬‬"
+    strFormat:      .string	"‫‪%s‬‬‬‬‬‬‬‬"
+    invalidOption:  .string "invalid option!\n"
 
 .align 8  # Align address to multiple of 8
-.L10:
+
+.JMP_TABLE:
 .quad .L1 # Case 50: loc_A
 .quad .L9 # Case 51: loc_def
 .quad .L2 # Case 52: loc_B
@@ -28,79 +30,75 @@
 .quad .L1 # Case 60: loc_A
 
     .text
-    .globl	run_func
-    .extern pstrlen, replaceChar, pstrijcpy, swapCase, pstrijcmp
-    .type	run_func, @function
+    .globl      run_func
+    .extern     pstrlen, replaceChar, pstrijcpy, swapCase, pstrijcmp
+    
+    .type       run_func, @function
 
 # The function gets option and jumps to the right case
 run_func:
 
     # Set up the jump table access
-    leaq    -50(%rdi), %rcx        # Compute index = opt - 50
+    leaq    -50(%rdi), %rcx             # Compute index = opt - 50
     movq    %rsi, %rdi
     movq    %rdx, %rsi
-    cmpq    $10, %rcx                # Compare index:10
-    ja .L9                      # if >10 goto default-case
-    jmp *.L10(,%rsi,8)          # Goto jt[index]
+    cmpq    $10, %rcx                   # Compare index:10
+    ja .L9                              # if >10 goto default-case
+    jmp *.JMP_TABLE(,%rcx,8)            # Goto jt[index]
     
     # Cases 50, 60
     .L1: # loc_A:
     
     pushq   %rsi
     
-    call    pstrlen # call the length function with the first string
-    popq    %rdi  # Put the second string in the first argument
-    pushq   %rax  # Save the length of the first string on the stack
+    call    pstrlen                     # call the length function with the first string
+    popq    %rdi                        # Put the second string in the first argument
+    pushq   %rax                        # Save the length of the first string on the stack
     
-    call    pstrlen # call the length function with the second string
-    movq    %rax, %rdx  # save the length of the second string
-    popq    %rsi    #save the length of the first string
+    call    pstrlen                     # call the length function with the second string
+    movq    %rax, %rdx                  # save the length of the second string
+    popq    %rsi                        #save the length of the first string
     
-    movq    $format50, %rdi	# the string is the first paramter passed to the printf function.
+    movq    $format50, %rdi             # the string is the first paramter passed to the printf function.
     xorl    %eax, %eax
-    call    printf		# calling to printf after its arguments are passed
+    call    printf                      # calling to printf after its arguments are passed
     
-    jmp .L7                   # Goto done
+    jmp .L7                             # Goto done
     
     # Case 52
     .L2: # loc_B:
     
-    push    %rdi
-    push    %rsi
+    pushq   %rdi
+    pushq   %rsi
     
-    subq    $1, %rsp  # Move the stack pointer to get memory for the arguments
+    subq    $8, %rsp                    # Move the stack pointer to get memory for the arguments
     
-    # get the first char (the old char we want to replace)
-    movq    $strFormat, %rdi	# the string is the first paramter passed to the scanf function.
-    leaq    (%rsp), %rsi        # Load address for the first char
+    # get the old char and the new char
+    movq    $str2Format, %rdi           # the string is the first paramter passed to the scanf function.
+    leaq    (%rsp), %rsi                # Load address for the first char
+    leaq    4(%rsp), %rdx               # Load address for the second char
     xor     %rax, %rax
-    call    scanf       # get the first char
-    movzbl  (%rsp), %ebx # Put the char in callee saved register for later
+    call    scanf
     
-    # get the first char (the new char we want to put)
-    movq    $strFormat, %rdi	# the string is the first paramter passed to the scanf function.
-    leaq    (%rsp), %rsi        # Load address for the second char
-    xor     %rax, %rax
-    call    scanf       # get the second char
-    movzbl  (%rsp), %edx # Put the new char in the third argument
-    
-    popq    %rdi    # Put the first string in the first argument
-    movb    %bl, %sil   # put the old char in the second argument
+    movzbl  (%rsp), %esi                # put the new char in the second argument
+    movzbl  4(%rsp), %edx               # put the old char in the second argument
+    addq    $8, %rsp                    # deallocate the memory
+    popq    %rdi                        # put the first string in the first argument
     
     # Save the chars in the stack to use it for the second string
-    pushq   %rbx
+    pushq   %rsi
     pushq   %rdx
     
     call    replaceChar
     
     # get from the stack the second string and the old and the new char
     popq    %rdx
-    popq    %rbx
+    popq    %rsi
     popq    %rdi
     
     # save in the stack the replaced string, the old char and the new char
     pushq   %rax
-    pushq   %rbx
+    pushq   %rsi
     pushq   %rdx
     
     call    replaceChar
@@ -111,72 +109,97 @@ run_func:
     popq    %rdx
     popq    %rcx
     movq    %rax, %r8
+    addq    $1, %rcx
+    addq    $1, %r8
+    
+    # substarct 8 from %rsp to print the result (because it should be divided by 16) and add it back
+    subq    $8, %rsp    
     call    printf
+    addq    $8, %rsp
     
     jmp .L7                   # Goto done
     
     # Case 53
     .L3: # loc_C:
     
-    pushq   %rsi
     pushq   %rdi
+    pushq   %rsi
     
-    subq    $16, %rsp  # Move the stack pointer to get memory for the arguments
+    subq    $8, %rsp                                # Move the stack pointer to get memory for the arguments
     
-    # get the nubmers i and j
-    movq    $int2Format, %rdi	# the string is the first paramter passed to the scanf function.
-    leaq    (%rsp), %rsi        # Load address for the first number
-    leaq    8(%rsp), %rdx        # Load address for the first number
+    # get the nubmer i
+    movq    $intFormat, %rdi                        # the string is the first paramter passed to the scanf function.
+    leaq    (%rsp), %rsi                            # Load address for the first number
     xor     %rax, %rax
-    call    scanf       # get the numbers
+    call    scanf                                   # get the numbers
+    
+    # get the nubmer j
+    movq    $intFormat, %rdi                        # the string is the first paramter passed to the scanf function.
+    leaq    4(%rsp), %rsi                           # Load address for the first number
+    xor     %rax, %rax
+    call    scanf                                   # get the numbers
     
     # put the arguments in the registers to call the function
-    popq    %rcx
-    popq    %rdx
-    popq    %rsi
-    movq    (%rsp), %rdi
+    movl    (%rsp), %edx
+    movl    4(%rsp), %ecx
+    movq    8(%rsp), %rsi
+    movq    16(%rsp), %rdi
     call    pstrijcpy‬‬
+    
+    addq    $8, %rsp                                # deallocate the memory from the stack
     
     # put all the arguments in the right registers and call printf for the first string
     movq    $format53, %rdi
-    movq    %rax, %rdx
-    movb    (%rax), %sil
+    popq    %rdx
+    movzbl  (%rdx), %esi
+    addq    $1, %rdx
     call    printf
     
-    # put all the arguments in the right registers and call printf for the second string
+    # put all the arguments in the right registers and call printf for the first string
     movq    $format53, %rdi
     popq    %rdx
-    movb    (%rdx), %sil
+    movzbl  (%rdx), %esi
+    addq    $1, %rdx
+    
+    # substarct 8 from %rsp to print the result (because it should be divided by 16) and add it back
+    subq    $8, %rsp    
     call    printf
+    addq    $8, %rsp
   
-    jmp .L7                   # Goto done
+    jmp .L7                     # Goto done
     
     # Cases 54
     .L4: # loc_D:
     
     pushq   %rsi
     
-    call    ‫‪swapCase‬‬ # call the length function with the first string
-    popq    %rdi  # Put the second string in the first argument
-    pushq   %rax  # Save the address of the first string
+    call    ‫‪swapCase                                    # call the length function with the first string
+    popq    %rdi                                        # Put the second string in the first argument
+    pushq   %rax                                        # Save the address of the first string
     
-    call    pstrlen # call the length function with the second string
-    popq    %rdx  # get the address of the first string
-    pushq   %rax  # Save the address of the second string
+    call    ‫‪swapCase‬‬                                    # call the length function with the second string
+    popq    %rdx                                        # get the address of the first string
+    pushq   %rax                                        # Save the address of the second string
     
     # print the first string
-    movb    (%rdx), %sil    # put the length of the first string in the second argument
-    movq    $format54, %rdi	# the string is the first paramter passed to the printf function.
+    movzbl  (%rdx), %esi                                # put the length of the first string in the second argument
+    addq    $1, %rdx                                    # go to the first character in the string
+    movq    $format54, %rdi                             # the string is the first paramter passed to the printf function.
     xorl    %eax, %eax
     call    printf
     
     # print the second string
-    movq    $format54, %rdi	# the string is the first paramter passed to the printf function.
-    popq    %rdx  # put the address of the second string in the third argument
-    movb    (%rdx), %sil    # put the length of the second string in the second argument
-    call    printf		# calling to printf after its arguments are passed
+    movq    $format54, %rdi                             # the string is the first paramter passed to the printf function.
+    popq    %rdx                                        # put the address of the second string in the third argument
+    movzbl  (%rdx), %esi                                # put the length of the second string in the second argument
+    addq    $1, %rdx                                    # go to the first character in the string
     
-    jmp .L7                   # Goto done
+    # substarct 8 from %rsp to print the result (because it should be divided by 16) and add it back
+    subq    $8, %rsp    
+    call    printf
+    addq    $8, %rsp
+    
+    jmp .L7                      # Goto done
     
     # Cases 55
     .L5: # loc_E:
@@ -184,32 +207,47 @@ run_func:
     push    %rsi
     push    %rdi
     
-    subq    $16, %rsp  # Move the stack pointer to get memory for the arguments
+    subq    $8, %rsp                                    # Move the stack pointer to get memory for the arguments
     
-    # get the nubmers i and j
-    movq    $int2Format, %rdi	# the string is the first paramter passed to the scanf function.
-    leaq    (%rsp), %rsi        # Load address for the first number
-    leaq    8(%rsp), %rdx        # Load address for the first number
+    # get the nubmer i
+    movq    $intFormat, %rdi                            # the string is the first paramter passed to the scanf function.
+    leaq    (%rsp), %rsi                                # Load address for the first number
     xor     %rax, %rax
-    call    scanf       # get the numbers
+    call    scanf                                       # get the numbers
+    
+    # get the nubmer j
+    movq    $intFormat, %rdi                            # the string is the first paramter passed to the scanf function.
+    leaq    4(%rsp), %rsi                               # Load address for the first number
+    xor     %rax, %rax
+    call    scanf                                       # get the numbers
     
     # put the arguments in the registers to call the function
-    popq    %rcx
-    popq    %rdx
-    popq    %rsi
-    popq    %rdi
+    movl    (%rsp), %edx
+    movl    4(%rsp), %ecx
+    movq    8(%rsp), %rsi
+    movq    16(%rsp), %rdi
     call    ‫‪pstrijcmp‬‬
+    
+    addq    $24, %rsp                                   # deallocate the memory from the stack
     
     # put all the arguments in the right registers and call printf for the first string
     movq    $format55, %rdi
     movq    %rax, %rsi
-    call    printf
     
-    jmp .L7                   # Goto done          # Goto done
+    # substarct 8 from %rsp to print the result (because it should be divided by 16) and add it back
+    subq    $8, %rsp    
+    call    printf
+    addq    $8, %rsp
+    
+    jmp .L7                   # Goto done          
     
     # Default case
     .L9: # loc_def:
-    call    printf                # print ‫‪invalid‬‬ ‪option
+    
+    movq    $invalidOption, %rdi
+    xorl    %eax, %eax
+    call    printf
+    
     # Return result
     .L7: # done:
     ret
