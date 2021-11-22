@@ -4,12 +4,11 @@
 
 .align 8  # Align address to multiple of 8
 
-    format50:       .string	"‫‪first‬‬ ‫‪pstring‬‬ ‫‪length:‬‬ ‫‪%d,‬‬ ‫‪second‬‬ ‫‪pstring‬‬ ‫‪length:‬‬ ‫‪%d\n‬‬"
-    format52:       .string	"‫‪‫‪old‬‬ ‫‪char:‬‬ ‫‪%c,‬‬ ‫‪new‬‬ ‫‪char:‬‬ ‫‪%c,‬‬ ‫‪first‬‬ ‫‪string:‬‬ ‫‪%s,‬‬ ‫‪second‬‬ ‫‪string:‬‬ ‫‪%s\n‬‬‬‬"
-    format53:       .string	"‫‪‫‪length:‬‬ ‫‪%d,‬‬ ‫‪string:‬‬ ‫‪%s\n‬‬‬‬"
-    format54:       .string	"‫‪length:‬‬ ‫‪%d,‬‬ ‫‪string:‬‬ ‫‪%s\n‬‬‬‬"
-    format55:       .string	"‫‪‫‪compare‬‬ ‫‪result:‬‬ ‫‪%d\n‬‬‬‬‬‬"
-    format0:        .string	"‫‪invalid‬‬ ‫‪option!\n‬‬‬‬‬‬‬‬"
+    format50:         .string "first pstring length: %d, second pstring length: %d\n"
+    format52:         .string "old char: %c, new char: %c, first string: %s, second string: %s\n"
+    format53:         .string "length: %d, string: %s\n"
+    format54:         .string "length: %d, string: %s\n"
+    format55:         .string "compare result: %d\n"
     format1:        .string	"‫‪%c%c‬‬‬‬‬‬‬‬"
     intFormat:      .string "%d"
     int2Format:     .string	"‫‪%d%d‬‬‬‬‬‬‬‬"
@@ -70,8 +69,8 @@ run_func:
     # Case 52
 .L2: # loc_B:
     
-    pushq   %rdi
     pushq   %rsi
+    pushq   %rdi
     
     subq    $16, %rsp                    # Move the stack pointer to get memory for the arguments
     
@@ -107,8 +106,8 @@ run_func:
     
     # put all the arguments in the right registers and call printf
     movq    $format52, %rdi
-    popq    %rsi
     popq    %rdx
+    popq    %rsi
     popq    %rcx
     movq    %rax, %r8
     addq    $1, %rcx
@@ -122,8 +121,8 @@ run_func:
     # Case 53
 .L3: # loc_C:
     
-    pushq   %rdi
     pushq   %rsi
+    pushq   %rdi
     
     subq    $16, %rsp                                # Move the stack pointer to get memory for the arguments
     
@@ -142,8 +141,8 @@ run_func:
     # put the arguments in the registers to call the function
     movl    (%rsp), %edx
     movl    4(%rsp), %ecx
-    movq    16(%rsp), %rsi
-    movq    24(%rsp), %rdi
+    movq    24(%rsp), %rsi
+    movq    16(%rsp), %rdi
     call    pstrijcpy
     
     addq    $16, %rsp                                # deallocate the memory from the stack
@@ -202,8 +201,8 @@ run_func:
     # Cases 55
 .L5: # loc_E:
     
-    push    %rsi
     push    %rdi
+    push    %rsi
     
     subq    $16, %rsp                                    # Move the stack pointer to get memory for the arguments
     
@@ -222,8 +221,8 @@ run_func:
     # put the arguments in the registers to call the function
     movl    (%rsp), %edx
     movl    4(%rsp), %ecx
-    movq    8(%rsp), %rsi
-    movq    16(%rsp), %rdi
+    movq    16(%rsp), %rsi
+    movq    24(%rsp), %rdi
     call    pstrijcmp
     
     addq    $32, %rsp                                   # deallocate the memory from the stack

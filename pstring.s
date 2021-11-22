@@ -2,7 +2,7 @@
 
 .section  .rodata
 
-strFormat:          .string "%s\n"
+strFormat:          .string "%s"
 invalidInput:          .string "invalid input!\n"
 
     .text
@@ -103,8 +103,9 @@ swapCase:
     cmpb    $97, (%rdi)                 # Check if the character is after 'a'
     jge .BOTTOM_CASE
     
-    cmpb    $97, (%rdi)                 # Check if the character is before 'Z'
+    cmpb    $90, (%rdi)                 # Check if the character is before 'Z'
     jle .UPPER_CASE
+    jmp .GO_NEXT2
     
     .BOTTOM_CASE:
     subb    $32, (%rdi)
@@ -131,9 +132,9 @@ pstrijcmp:
     cmpb    %cl, (%rsi)             # Check j < len(dst)
     jle .INVALID_INPUT2
     
+    addq    $1, %rcx
     addq    %rdx, %rdi              # Go to the index i in the first pstring
     addq    %rdx, %rsi              # Go to the index i in the second pstring
-    addq    $1, %rcx                # Start from j and not from j - 1
     
     .GO_NEXT3:                      # Loop until we arrive to j
     addq    $1, %rdi
@@ -142,9 +143,9 @@ pstrijcmp:
     # Compare between the characters in the string in the same index
     movb    (%rsi), %al             # Save the char of the first string and compare it to the char in the second string
     cmpb    %al, (%rdi)             # and compare it to the char in the second string
-    jl  .SMALLER
+    jl  .GREATER
     cmpb    %al, (%rdi)
-    jg  .GREATER
+    jg  .SMALLER
     subq    $1, %rcx                # Do j-- until i will equal j
     cmpq    %rdx, %rcx              # Check if we arrived to j
     je .EQUAL                       # then the strings are equal
