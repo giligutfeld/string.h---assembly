@@ -2,16 +2,17 @@
 
 .section  .rodata
 
-strFormat: .string "%s\n"
-invalidInput: .string "invalid input!\n"
+strFormat:          .string "%s\n"
+invalidInput:          .string "invalid input!\n"
 
     .text
-    .globl	‫‪pstrlen, pstrijcpy, ‫‪replaceChar‬‬, ‫‪swapCase‬‬, ‫‪pstrijcmp‬‬
+    .globl  pstrlen, replaceChar, pstrijcpy, swapCase, pstrijcmp
 
 ####################################################################
     
     .type	‫‪pstrlen‬‬, @function
-# get *pstring and return its length
+    
+    # get *pstring and return its length
 pstrlen:
 
     movzbl (%rdi), %eax
@@ -42,10 +43,10 @@ replaceChar:
     ret
     
 ####################################################################
-    
     .type	pstrijcpy, @function
     
     # get two *pstrings and two chars and copy the first string to the second string between the indexes we got
+
 pstrijcpy:
 
     pushq   %rdi                    # Save *dst
@@ -82,8 +83,9 @@ pstrijcpy:
     
 ####################################################################
     
-    .type	‫‪swapCase‬‬, @function
-‫‪swapCase‬‬:
+    .type   swapCase, @function
+swapCase:
+
     pushq   %rdi                        # Save *pstr
     
     .GO_NEXT2:                          # Loop until we arrive to j
@@ -118,10 +120,10 @@ pstrijcpy:
     
 ####################################################################
 
-    .type	‫‪pstrijcmp‬‬, @function
+    .type pstrijcmp, @function
     
     # get two *pstrings and two chars and check who is greater lexicographic from the first string and the second string between the indexes we got
-‫‪pstrijcmp‬‬:
+pstrijcmp:
 
     # Check i and j are valid input
     cmpb    %cl, (%rdi)             # Check j < len(src)
