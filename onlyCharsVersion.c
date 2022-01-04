@@ -43,11 +43,11 @@ void smoothBlur(int dim, pixel *src, char *c) {
         for (j = 1; j < end - 2; j+=3) {
 
             *c = (char)((sumRed1 + sumRed2 + sumRed3) / 9);
-            ++c;
+            c++;
             *c = (char)((sumGreen1 + sumGreen2 + sumGreen3) / 9);
-            ++c;
+            c++;
             *c = (char)((sumBlue1 + sumBlue2 + sumBlue3) / 9);
-            ++c;
+            c++;
 
             pixel1 = pixel3 + 1;
             pixel4 = pixel6 + 1;
@@ -64,11 +64,11 @@ void smoothBlur(int dim, pixel *src, char *c) {
             sumBlue3 = pixel1->blue + pixel4->blue + pixel7->blue;
 
             *c = (char)((sumRed1 + sumRed2 + sumRed3) / 9);
-            ++c;
+            c++;
             *c = (char)((sumGreen1 + sumGreen2 + sumGreen3) / 9);
-            ++c;
+            c++;
             *c = (char)((sumBlue1 + sumBlue2 + sumBlue3) / 9);
-            ++c;
+            c++;
 
             pixel2 = pixel1 + 1;
             pixel5 = pixel4 + 1;
@@ -85,11 +85,11 @@ void smoothBlur(int dim, pixel *src, char *c) {
             sumBlue3 = pixel2->blue + pixel5->blue + pixel8->blue;
 
             *c = (char)((sumRed1 + sumRed2 + sumRed3) / 9);
-            ++c;
+            c++;
             *c = (char)((sumGreen1 + sumGreen2 + sumGreen3) / 9);
-            ++c;
+            c++;
             *c = (char)((sumBlue1 + sumBlue2 + sumBlue3) / 9);
-            ++c;
+            c++;
 
             pixel3 = pixel2 + 1;
             pixel6 = pixel5 + 1;
@@ -106,20 +106,16 @@ void smoothBlur(int dim, pixel *src, char *c) {
             sumBlue3 = pixel3->blue + pixel6->blue + pixel9->blue;
         }
 
-        for (k = j; k < end; ++k) {
-            pixel1 = src - 1;
-            pixel2 = src;
-            pixel3 = src + 1;
-            pixel4 = pixel1 + dim;
-            pixel5 = pixel4 + 1;
-            pixel6 = pixel5 + 1;
-            pixel7 = pixel4 + dim;
-            pixel8 = pixel7 + 1;
-            pixel9 = pixel8 + 1;
-
-            *(c++) = (char)((pixel1->red + pixel4->red + pixel7->red + pixel2->red + pixel5->red + pixel8->red + pixel3->red + pixel6->red + pixel9->red) / 9);
-            *(c++) = (char)((pixel1->green + pixel4->green + pixel7->green + pixel2->green + pixel5->green + pixel8->green + pixel3->green + pixel6->green + pixel9->green) / 9);
-            *(c++)= (char)((pixel1->blue + pixel4->blue + pixel7->blue + pixel2->blue + pixel5->blue + pixel8->blue + pixel3->blue + pixel6->blue + pixel9->blue) / 9);
+        for (k = j; k < end; ++k) {/*
+            *c = (char)((src - 1)->red + src->red + (src + 1)->red + (pixel2 - 1)->red + pixel2->red +
+                        (pixel2 + 1)->red + (pixel3 - 1)->red + pixel3->red + (pixel3 + 1)->red) / 9;
+            c++;
+            *c = (char)((src - 1)->green + src->green + (src + 1)->green + (pixel2 - 1)->green + pixel2->green +
+                        (pixel2 + 1)->green + (pixel3 - 1)->green + pixel3->green + (pixel3 + 1)->green) / 9;
+            c++;
+            *c = (char)((src - 1)->blue + src->blue + (src + 1)->blue + (pixel2 - 1)->blue + pixel2->blue +
+                        (pixel2 + 1)->blue + (pixel3 - 1)->blue + pixel3->blue + (pixel3 + 1)->blue) / 9;
+            c++;*/
         }
         src += dim;
         c += 6;
@@ -194,34 +190,32 @@ void smoothBlurFilter(int dim, pixel *src, char *c) {
     pixel *pixel1, *pixel2, *pixel3, *pixel4, *pixel5, *pixel6, *pixel7, *pixel8, *pixel9, *minp, *maxp;
     int sumRed1, sumRed2, sumRed3, sumGreen1, sumGreen2, sumGreen3, sumBlue1, sumBlue2, sumBlue3;
 
-    for (i = 1; i < end; ++i) {
+    for (i = 1; i < end; i++) {
 
-        pixel1 = src - 1;
-        pixel2 = src;
-        pixel3 = src + 1;
-        pixel4 = pixel1 + dim;
-        pixel5 = pixel4 + 1;
-        pixel6 = pixel5 + 1;
-        pixel7 = pixel4 + dim;
-        pixel8 = pixel7 + 1;
-        pixel9 = pixel8 + 1;
-
-        for (j = 1; j < end; ++j) {
+        for (j = 1; j < end; j++) {
+            pixel1 = src - 1;
+            pixel2 = src;
+            pixel3 = src + 1;
+            pixel4 = pixel1 + dim;
+            pixel5 = pixel4 + 1;
+            pixel6 = pixel5 + 1;
+            pixel7 = pixel4 + dim;
+            pixel8 = pixel7 + 1;
+            pixel9 = pixel8 + 1;
 
             sumRed1 = pixel1->red + pixel4->red + pixel7->red;
-            sumGreen1 = pixel1->green + pixel4->green + pixel7->green;
-            sumBlue1 = pixel1->blue + pixel4->blue + pixel7->blue;
-
             sumRed2 = pixel2->red + pixel5->red + pixel8->red;
-            sumGreen2 = pixel2->green + pixel5->green + pixel8->green;
-            sumBlue2 = pixel2->blue + pixel5->blue + pixel8->blue;
-
             sumRed3 = pixel3->red + pixel6->red + pixel9->red;
-            sumGreen3 = pixel3->green + pixel6->green + pixel9->green;
-            sumBlue3 = pixel3->blue + pixel6->blue + pixel9->blue;
-
             red = (sumRed1 + sumRed2 + sumRed3);
+
+            sumGreen1 = pixel1->green + pixel4->green + pixel7->green;
+            sumGreen2 = pixel2->green + pixel5->green + pixel8->green;
+            sumGreen3 = pixel3->green + pixel6->green + pixel9->green;
             green = (sumGreen1 + sumGreen2 + sumGreen3);
+
+            sumBlue1 = pixel1->blue + pixel4->blue + pixel7->blue;
+            sumBlue2 = pixel2->blue + pixel5->blue + pixel8->blue;
+            sumBlue3 = pixel3->blue + pixel6->blue + pixel9->blue;
             blue = (sumBlue1 + sumBlue2 + sumBlue3);
 
             min_intensity = pixel1->sum;
@@ -321,18 +315,9 @@ void smoothBlurFilter(int dim, pixel *src, char *c) {
             else
                 *c = 255;
             ++c;
-
-            ++pixel1;
-            ++pixel2;
-            ++pixel3;
-            ++pixel4;
-            ++pixel5;
-            ++pixel6;
-            ++pixel7;
-            ++pixel8;
-            ++pixel9;
+            ++src;
         }
-        src += dim;
+        src += 2;
         c += 6;
     }
 }
